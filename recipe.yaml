@@ -1,0 +1,61 @@
+---
+RecipeFormatVersion: '2020-01-25'
+ComponentName: aws.greengrass.labs.dashboard.InfluxDBGrafana
+ComponentVersion: '1.0.0'
+ComponentDescription: 'A component that provisions a dashboard using InfluxDB and Grafana.'
+ComponentPublisher: Amazon
+ComponentDependencies:
+  aws.greengrass.labs.database.InfluxDB:
+    VersionRequirement: "~1.1.0"
+    DependencyType: HARD
+  aws.greengrass.labs.telemetry.InfluxDBPublisher:
+    VersionRequirement: "~1.1.0"
+    DependencyType: HARD
+  aws.greengrass.labs.dashboard.Grafana:
+    VersionRequirement: "~1.1.0"
+    DependencyType: HARD
+ComponentConfiguration:
+  DefaultConfiguration:
+    SkipTLSVerify: 'true'
+    TokenRequestTopic: 'greengrass/influxdb/token/request'
+    TokenResponseTopic: 'greengrass/influxdb/token/response'
+    accessControl:
+      aws.greengrass.ipc.pubsub:
+        aws.greengrass.labs.dashboard.InfluxDBGrafana:pubsub:1:
+          policyDescription: Allows access to publish to the token request topic.
+          operations:
+            - aws.greengrass#PublishToTopic
+          resources:
+            - "greengrass/influxdb/token/request"
+        aws.greengrass.labs.dashboard.InfluxDBGrafana:pubsub:2:
+          policyDescription: Allows access to subscribe to the token response topic.
+          operations:
+            - aws.greengrass#SubscribeToTopic
+          resources:
+            - "greengrass/influxdb/token/response"
+      aws.greengrass.SecretManager:
+        aws.greengrass.labs.dashboard.InfluxDBGrafana:secrets:1:
+          policyDescription: Allows access to the secret containing Grafana credentials.
+          operations:
+            - aws.greengrass#GetSecretValue
+          resources:
+            - 'arn:aws:secretsmanager:region:account:secret:name'
+Manifests:
+  - Platform:
+      os: /darwin|linux/
+    Lifecycle:
+      Run:
+        RequiresPrivilege: false
+        script: |-
+          set -eu
+          python3 -u {artifacts:decompressedPath}/aws-greengrass-labs-dashboard-influxdb-grafana/src/dashboard.py \
+            --publish_topic {configuration:/TokenRequestTopic} \
+            --subscribe_topic {configuration:/TokenResponseTopic} \
+            --mount_path {aws.greengrass.labs.database.InfluxDB:configuration:/InfluxDBMountPath} \
+            --grafana_secret_arn {aws.greengrass.labs.dashboard.Grafana:configuration:/SecretArn} \
+            --grafana_server_protocol {aws.greengrass.labs.dashboard.Grafana:configuration:/ServerProtocol} \
+            --grafana_port {aws.greengrass.labs.dashboard.Grafana:configuration:/GrafanaPort} \
+            --skip_tls_verify {configuration:/SkipTLSVerify}
+    Artifacts:
+      - URI: s3://aws-greengrass-labs-dashboard-influxdb-grafana.zip
+        Unarchive: ZIP
