@@ -23,23 +23,13 @@ The `aws.greengrass.labs.dashboard.InfluxDBGrafana` component automates the setu
 ## Configuration
 The `aws.greengrass.labs.dashboard.InfluxDBGrafana` component supports the following configuration options.
 
-* `TokenRequestTopic`- the topic to send a request to in order to retrieve InfluxDB credentials
-   * (`string`)
-   * default: `greengrass/influxdb/token/request`
-
-
-* `TokenResponseTopic`- the topic to subscribe to in order to receive the response with InfluxDB credentials
-   * (`string`)
-   * default: `greengrass/influxdb/token/response`
-
+* `SkipTLSVerify` - skip TLS verification, for self-signed HTTPS certificates
+    * (`true` | `false` )
+    * default: `true`
 
 * `accessControl` - [Greengrass Access Control Policy](https://docs.aws.amazon.com/greengrass/v2/developerguide/interprocess-communication.html#ipc-authorization-policies), required for InfluxDB secret retrieval over pub/sub and AWS Secret Manager.
    * A default `accessControl` policy allowing publish access to the `greengrass/influxdb/token/request` topic and subscribe access to the `greengrass/influxdb/token/response` has been included, but you must configure the Secret Arn to be retrieved.
-
-* `SkipTLSVerify` - skip TLS verification, for self-signed HTTPS certificates
-  * (`true` | `false` )
-  * default: `true`
-  
+   
 ## Setup
 **The following steps are for Ubuntu 20.04 x86_64, but will be similar for most platforms.**
 
@@ -112,7 +102,7 @@ The `aws.greengrass.labs.dashboard.InfluxDBGrafana` component supports the follo
      }
     ```
    It may take 1-2 minutes for the component to fully set up everything on your device. Once complete, you should see the log `InfluxDB datasource successfully added to Grafana!` in this component's log after a certain number of retries.
-7. View the component logs at `/greengrass/v2/logs/aws.greengrass.labs.dashboard.Grafana.log`.
+7. View the component logs at `/greengrass/v2/logs/aws.greengrass.labs.dashboard.InfluxDBGrafana.log`.
    1. If correctly set up, you will see the messages `Grafana is running on port 3000` and `msg="HTTP Server Listen"`, and see logs from Grafana as it runs.
    2. You can also run `curl -k https://localhost:3000/api/health` to check the status:
    ```
@@ -157,4 +147,4 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 This project is licensed under the Apache-2.0 License.
 
 ## Troubleshooting
-* Troubleshooting for this component will be resolved by troubleshooting its dependencies, `aws.greengrass.labs.database.InfluxDB` and `aws.greengrass.labs.dashboard.Grafana`. Please
+* Troubleshooting for this component is the same as for [aws.greengrass.labs.database.InfluxDB](https://github.com/awslabs/aws-greengrass-labs-database-influxdb) and [aws.greengrass.labs.dashboard.Grafana](https://github.com/awslabs/aws-greengrass-labs-dashboard-grafana).
