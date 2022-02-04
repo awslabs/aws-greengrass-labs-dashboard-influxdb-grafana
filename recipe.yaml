@@ -6,13 +6,13 @@ ComponentDescription: 'A component that provisions a dashboard using InfluxDB an
 ComponentPublisher: Amazon
 ComponentDependencies:
   aws.greengrass.labs.database.InfluxDB:
-    VersionRequirement: "~1.1.0"
+    VersionRequirement: "~2.0.0"
     DependencyType: HARD
   aws.greengrass.labs.telemetry.InfluxDBPublisher:
-    VersionRequirement: "~1.1.0"
+    VersionRequirement: "~2.0.0"
     DependencyType: HARD
   aws.greengrass.labs.dashboard.Grafana:
-    VersionRequirement: "~1.1.0"
+    VersionRequirement: "~2.0.0"
     DependencyType: HARD
 ComponentConfiguration:
   DefaultConfiguration:
