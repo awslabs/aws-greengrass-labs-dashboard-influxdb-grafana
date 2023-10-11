@@ -16,7 +16,6 @@ import streamHandlers
 
 logging.basicConfig(level=logging.INFO)
 TIMEOUT = 15
-READ_ONLY_ACCESS = "RO"
 
 
 def publish_token_request(ipc_publisher_client, publish_topic) -> None:
@@ -102,20 +101,14 @@ def retrieve_influxdb_params(publish_topic, subscribe_topic) -> str:
     ipc_publisher_client = awsiot.greengrasscoreipc.connect()
     retries = 0
     try:
-        # Retrieve the InfluxDB parameters to connect
-        # Retry 10 times or until we retrieve parameters with RO access
+        # Retrieve InfluDB parameters to connect; retry up to 10 times
         while not handler.influxdb_parameters and retries < 10:
             logging.info("Publish attempt {}".format(retries))
             publish_token_request(ipc_publisher_client, publish_topic)
             logging.info('Successfully published token request to topic: {}'.format(publish_topic))
             retries += 1
-            logging.info('Waiting for 15 seconds...')
-            time.sleep(TIMEOUT)
-            if handler.influxdb_parameters:
-                if handler.influxdb_parameters['InfluxDBTokenAccessType'] != READ_ONLY_ACCESS:
-                    logging.warning("Discarding retrieved token with incorrect access level {}"
-                                    .format(handler.influxdb_parameters['InfluxDBTokenAccessType']))
-                    handler.influxdb_parameters = {}
+            time.sleep(2)
+
     except Exception:
         logging.error("Received error while sending token publish request!", exc_info=True)
     finally:
