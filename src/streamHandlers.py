@@ -8,6 +8,8 @@ from awsiot.greengrasscoreipc.model import (
     SubscriptionResponseMessage
 )
 
+READ_ONLY_ACCESS = "RO"
+
 
 class InfluxDBDataStreamHandler(client.SubscribeToTopicStreamHandler):
     def __init__(self):
@@ -27,9 +29,16 @@ class InfluxDBDataStreamHandler(client.SubscribeToTopicStreamHandler):
             None
         """
         try:
-            self.influxdb_parameters = event.json_message.message
-            if len(self.influxdb_parameters) == 0:
+            p = event.json_message.message
+            if len(p) == 0:
                 raise ValueError("Retrieved Influxdb parameters are empty!")
+            # accept only tokens with READ_ONLY_ACCESS access; reject all others
+            if p['InfluxDBTokenAccessType'] != READ_ONLY_ACCESS:
+                logging.warning("Discarding retrieved token with incorrect access level {}"
+                                .format(p['InfluxDBTokenAccessType']))
+            else:
+                self.influxdb_parameters = p
+
         except Exception:
             logging.error('Failed to load telemetry event JSON!', exc_info=True)
             exit(1)
